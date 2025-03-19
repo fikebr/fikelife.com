@@ -26,9 +26,8 @@
 
 # Hello World static response
 hello.{$DOMAIN} {
-    respond "<!DOCTYPE html><html><body><h1>Hello World!</h1></body></html>" 200 {
-        content-type "text/html"
-    }
+    respond "<!DOCTYPE html><html><body><h1>Hello World!</h1></body></html>" 200
+    header content-type "text/html"
     import security_headers
 }
 
