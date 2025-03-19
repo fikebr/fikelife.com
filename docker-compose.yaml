@@ -81,3 +81,4 @@ services:
       - postgres
     networks:
       - app_internal
+      - app_external
