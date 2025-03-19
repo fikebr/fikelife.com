@@ -7,7 +7,21 @@ networks:
     driver: bridge
 
 services:
+  portainer:
+    container_name: fikelife-portainer
+    image: portainer/portainer-ce:latest
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer_data:/data
+    networks:
+      - app_internal
+      - app_external
+
   caddy:
+    container_name: fikelife-caddy
     image: caddy:latest
     restart: unless-stopped
     environment:
@@ -27,6 +41,7 @@ services:
       - app_internal
 
   postgres:
+    container_name: fikelife-postgres
     image: postgres:15
     restart: unless-stopped
     environment:
@@ -39,6 +54,7 @@ services:
       - app_internal
 
   n8n:
+    container_name: fikelife-n8n
     image: n8nio/n8n:latest
     restart: unless-stopped
     environment:
@@ -56,6 +72,7 @@ services:
       - app_internal
 
   openwebui:
+    container_name: fikelife-openwebui
     image: ghcr.io/open-webui/open-webui:main
     restart: unless-stopped
     environment:
