@@ -33,9 +33,6 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - ./caddy_data:/data
       - ./caddy_config:/config
-    depends_on:
-      - n8n
-      - openwebui
     networks:
       - app_external
       - app_internal
