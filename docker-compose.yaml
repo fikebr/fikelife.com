@@ -75,10 +75,15 @@ services:
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       - WEBUI_SECRET_KEY=ZR1n40jZTKJjMUqqmWpRQk4W5M6HijcwTT8fk6MXM98=
+      - HF_HUB_OFFLINE=1  # (Optional) Prevents model downloads if using a pre-downloaded model
     volumes:
       - ./openwebui_data:/app/backend/data
+      - ./models:/app/models  # Mount pre-downloaded Hugging Face models
     depends_on:
       - postgres
     networks:
       - app_internal
       - app_external
+    dns:
+      - 8.8.8.8  # Fix name resolution issue
+      - 8.8.4.4
