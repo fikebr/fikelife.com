@@ -74,6 +74,7 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - WEBUI_SECRET_KEY=ZR1n40jZTKJjMUqqmWpRQk4W5M6HijcwTT8fk6MXM98=
     volumes:
       - ./openwebui_data:/app/backend/data
     depends_on:
