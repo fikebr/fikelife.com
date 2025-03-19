@@ -1,0 +1,86 @@
+version: '3.8'
+
+networks:
+  app_internal:
+    internal: true
+  app_external:
+    driver: bridge
+
+services:
+  caddy:
+    image: caddy:latest
+    restart: unless-stopped
+    environment:
+      - DOMAIN=${DOMAIN}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: ./Caddyfile
+        target: /etc/caddy/Caddyfile
+        is_directory: false
+      - type: bind
+        source: ./caddy_data
+        target: /data
+        is_directory: true
+      - type: bind
+        source: ./caddy_config
+        target: /config
+        is_directory: true
+    depends_on:
+      - n8n
+      - openwebui
+    networks:
+      - app_external
+      - app_internal
+
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - type: bind
+        source: ./postgres_data
+        target: /var/lib/postgresql/data
+        is_directory: true
+    networks:
+      - app_internal
+
+  n8n:
+    image: n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgres
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - type: bind
+        source: ./n8n_data
+        target: /home/node/.n8n
+        is_directory: true
+    depends_on:
+      - postgres
+    networks:
+      - app_internal
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:main
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    volumes:
+      - type: bind
+        source: ./openwebui_data
+        target: /app/backend/data
+        is_directory: true
+    depends_on:
+      - postgres
+    networks:
+      - app_internal

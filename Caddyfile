@@ -1,0 +1,47 @@
+{
+    email jackrabbit@fikeweb.com
+    # Add some security headers
+    servers {
+        protocols h1 h2 h2c h3
+    }
+}
+
+# Root domain redirect to preferred subdomain (optional)
+{$DOMAIN} {
+    redir https://openwebui.{$DOMAIN}{uri} permanent
+}
+
+# n8n service on a subdomain
+n8n.{$DOMAIN} {
+    reverse_proxy n8n:5678
+    header {
+        # Security headers
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-XSS-Protection "1; mode=block"
+        # Remove Server header
+        -Server
+    }
+}
+
+# OpenWebUI service on a subdomain
+openwebui.{$DOMAIN} {
+    reverse_proxy openwebui:3000
+    header {
+        # Security headers
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        X-XSS-Protection "1; mode=block"
+        # Remove Server header
+        -Server
+    }
+}
+
+# Catch-all redirect for HTTP to HTTPS
+http://{$DOMAIN}, http://*.{$DOMAIN} {
+    redir https://{host}{uri} permanent
+}
